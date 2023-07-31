@@ -44,7 +44,7 @@ class Player:
     def attack(self, opponent):
         if not self.attack_moves or not self.attack_damage:
             return f"{self.name} no puede atacar, se ha quedado sin movimientos o golpes."
-
+        
         attack_move = self.attack_moves[0]        
         if len(attack_move)>3:
             attack_move = attack_move[-3:]
@@ -89,7 +89,7 @@ class Kombat:
     def fight(self):
         fight_log = []
         player1_turn, player2_turn = self._choose_starting_player()
-
+        
         while player1_turn.is_alive() and player2_turn.is_alive() and player1_turn.attack_moves and player2_turn.attack_moves:
             if player1_turn.is_alive():
                 log = player1_turn.attack(player2_turn)
@@ -99,7 +99,10 @@ class Kombat:
                 log = player2_turn.attack(player1_turn)
                 fight_log.append(log)
 
-        return fight_log, self.get_winner()
+        winner = self.get_winner()
+        winner_energy = self.player1.energy if winner == self.player1.name else self.player2.energy
+
+        return fight_log, winner, winner_energy
 
     def get_winner(self):
         if self.player1.is_alive():
@@ -159,9 +162,7 @@ def convert_move_to_narrate(move, attack):
 if __name__ == "__main__":
     data = read_data_from_json("data.json")
     kombat = Kombat(data["player1"], data["player2"])
-    fight_log, winner = kombat.fight()
-
+    fight_log, winner, winner_energy = kombat.fight()
     narration = narrate_fight(fight_log)
     print(narration)
-
-    print(f"{winner} gana la pelea y aun le queda {kombat.player2.energy} de energía.")
+    print(f"{winner} gana la pelea y aun le queda {winner_energy} de energía.")
